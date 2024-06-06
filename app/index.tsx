@@ -1,12 +1,16 @@
 import React from "react";
 import { View, Text, ScrollView, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Redirect, router } from "expo-router";
+import { Redirect, router, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from '../constants'
 import CustomButton from "@/components/CustomButton";
 
-const App = () => {
+import { useGlobalContext } from '../context/GlobalProvider'
+
+const App: React.FC = (): React.ReactElement => {
+    const { isLoggedIn, isLoading } = useGlobalContext()
+    if(!isLoading && isLoggedIn) return <Redirect href='/home' />
 
     return (
         <SafeAreaView className=" bg-primary h-full">
@@ -44,15 +48,17 @@ const App = () => {
                     className='text-sm font-pregular text-gray-100
                     mt-7 text-center'
                 >
-                    Where cretive meets innovation: embark ; on a journey of limitless;
+                    Where cretive meets innovation: embark on a journey of limitless
                     exploration with React Native App
                 </Text>
                     <CustomButton 
                         title="Continue with Email"
                         containerStyles='w-full mt-7'
+                        // handlePress={() => {router.push('/sign-in')}}
                         handlePress={() => {router.push('/home')}}
                         isLoading={false}
                     />
+                    <Link href='/sign-in' className="text-2xl text-white">Sign-in</Link>
                 </View>
             </ScrollView>
             <StatusBar backgroundColor="#161622" style="light" />
