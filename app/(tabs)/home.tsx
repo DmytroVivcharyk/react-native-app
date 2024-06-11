@@ -1,41 +1,38 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { View, Text, Image, FlatList, ListRenderItem, RefreshControl} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import{ images } from '../../constants'
 import SearchPanel from '../../components/SearchPanel'
 import Trending from '../../components/Trending'
+import VideoCard from '@/components/VideoCard'
 import EmptyState from '../../components/EmptyState'
-import { fetchAllPosts } from '../../lib/appwrite'
+import { fetchAllPosts, fetchLatestPosts } from '../../lib/appwrite'
 import { IPost } from '@/types/postsInterface'
 import { useAppwrite } from '../../hooks/useAppwrite'
 
-const dataTempo: IPost[] = [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5},]
-
 const Home: React.FC = () => {
   const [searcValue, setSearchValue] = useState<string>('')
-  const  [isRefreshing, setIsRefreshig] = useState<boolean>(false)
-  const [data, setData] = useState<IPost[]>(dataTempo)
-  // const [isLoading, setIsLoading] = useState<boolean>(false)
-  // const [errer, setError] = useState(null)
+  const  [isRefreshing, setIsRefreshig] = useState<boolean>(true)
+
+  const { data: posts, error, isLoading, refetchData } = useAppwrite<IPost[]>(fetchAllPosts)
+  
+  const { data: latesPosts, 
+    error: latestError, 
+    isLoading: isLatestLoading,
+    refetchData: refetchLatest
+  } = useAppwrite<IPost[]>(fetchLatestPosts) 
+
 
   useEffect(() => {
-    // setIsLoading(true)
-    // fetchAllPosts()
-    //   .then(res => {
-    //     setData(res)
-    //   })
-    //   .catch(error => console.log(error))
-    //   .finally(() => setIsLoading(false))
-  }, [])
-
-  const { data: posts, error, isLoading } = useAppwrite<IPost[], []>(fetchAllPosts, [])
+    setIsRefreshig(isLoading)
+  }, [isLoading])
 
   const onRefresh = async () => {
     setIsRefreshig(true)
-    setTimeout(() => {
-      setIsRefreshig(false)
-    }, 2000)
+    await refetchData()
+    await refetchLatest
+    setIsRefreshig(false)
   }
 
   const onSearch = useCallback<(a: string) => void>((text: string): void => {
@@ -43,9 +40,8 @@ const Home: React.FC = () => {
   }, [])
   
 
-  const renderItem: ListRenderItem<IPost> = ({ item }) => (
-    <Text className='text-3xl text-secondary'>Home: {item.id}</Text>
-  );
+  const renderItem: ListRenderItem<IPost> = ({ item }) => <VideoCard video={item} />;
+
 
   const renderListHeader = () => (
     <View className='my-6 px-4 space-y-6'>
@@ -72,22 +68,39 @@ const Home: React.FC = () => {
 
       <View className='w-full flex-1 pt-5 pb-8'>
           <Text className='text-gray-100 text-lg font-pregular'>Latest Videos</Text>
-          <Trending posts={data}/>
+          <Trending 
+            posts={latesPosts} 
+            isLoading={isLatestLoading}
+            error={latestError}
+            />
       </View>
     </View>
   )
 
+  const loader = <Text className='text-3xl text-white text-center px-4' >Loading...</Text>
+  const errorElemnt = <Text className='text-3xl text-[#ff0000] text-center px-4'>SomeError: {error?.message}</Text>
+
+  const showLoader = isRefreshing ? loader : null
+  const showError = error ? errorElemnt : null
+  const emptyElement = !isRefreshing && !error ? <EmptyState 
+        title='No Videous Found'
+        subtitle='There are no created videous yet'
+        /> : null
+
   return (
-    <SafeAreaView className='bg-primary min-h-[100vh]'>
+    <SafeAreaView className='bg-primary h-full'>
       <FlatList 
-        data={data}
-        keyExtractor={((item: IPost) => item.id.toString())}
+        data={posts}
+        keyExtractor={((item: IPost) => item.$id)}
         renderItem={renderItem}
         ListHeaderComponent={renderListHeader}
-        ListEmptyComponent={<EmptyState 
-          title='No Videous Found'
-          subtitle='There are no created videous yet'
-          />}
+        ListEmptyComponent={
+          <>
+            {showLoader}
+            {showError}
+            {emptyElement}
+          </>
+        }
         refreshControl={<RefreshControl 
           refreshing={isRefreshing}
           onRefresh={onRefresh}

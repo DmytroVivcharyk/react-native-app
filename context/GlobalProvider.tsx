@@ -5,8 +5,8 @@ import { IUser } from '../types/userInterface'
 interface IGlobalContext {
     isLoggedIn: boolean;
     setIsLoggedIn: (value: boolean) => void;
-    user: IUser;
-    setUser: (user: any) => void;
+    user: IUser | null;
+    setUser: (user: IUser | null) => void;
     isLoading: boolean;
     setIsLoading?: (value: boolean) => void;
 }
@@ -27,7 +27,7 @@ export const useGlobalContext = (): IGlobalContext => {
 
 export const GlobalProvider: FC<IGlobalProvider>  = ({ children }: IGlobalProvider) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-    const [user, setUser] = useState<any | null>(null)
+    const [user, setUser] = useState<IUser | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(  () => {

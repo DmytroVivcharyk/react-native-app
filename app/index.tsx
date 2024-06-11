@@ -51,13 +51,17 @@ const App: React.FC = (): React.ReactElement => {
                     Where cretive meets innovation: embark on a journey of limitless
                     exploration with React Native App
                 </Text>
-                    <CustomButton 
+                    {isLoading ?
+                         <Text className='text-3xl text-white text-center px-4 my-4' >Loading...</Text>
+                        : <CustomButton 
+                        enabled={false}
                         title="Continue with Email"
                         containerStyles='w-full mt-7'
                         // handlePress={() => {router.push('/sign-in')}}
                         handlePress={() => {router.push('/home')}}
                         isLoading={false}
                     />
+                    }
                     <Link href='/sign-in' className="text-2xl text-white">Sign-in</Link>
                 </View>
             </ScrollView>

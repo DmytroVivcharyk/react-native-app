@@ -32,7 +32,7 @@ const {
 } = appwriteConfig
 
 type IDockLists<T> = {
-  documents: T[] | [],
+  documents: T[]| [],
   total: number
 }
 
@@ -91,7 +91,7 @@ export async function createUser(email: string, password: string, username: stri
     }
   }
 
-  export const getCurrentUser = async (): Promise<IUser | never | null> => {
+  export const getCurrentUser = async (): Promise<IUser | null> => {
     try {
       const currentAccount: ICurrentAccount = await account.get()
 
@@ -113,11 +113,24 @@ export async function createUser(email: string, password: string, username: stri
     }
   }
 
-  export const fetchAllPosts = async (): Promise<IPost[] | never> => {
+  export const fetchAllPosts = async (): Promise<IPost[]> | never => {
     try {
       const posts: IDockLists<IPost> = await databases.listDocuments(
         databaseId,
         videoCollectionId
+      ).then(res => res as IDockLists<IPost>)
+      return posts.documents 
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  }
+
+  export const fetchLatestPosts = async (): Promise<IPost[]> => {
+    try {
+      const posts: IDockLists<IPost> = await databases.listDocuments(
+        databaseId,
+        videoCollectionId,
+        [Query.orderDesc('$createdAt'), Query.limit(7)]
       ).then(res => res as IDockLists<IPost>)
       return posts.documents 
     } catch (error: any) {

@@ -4,31 +4,41 @@ interface IResponse<T> {
     data: T | null
     isLoading: boolean,
     error: Error | null,
-    clearError: () => void
+    clearError: () => void,
+    refetchData: () => void
 }
-type fetchData<T> = () => Promise<T | null | never>
+type fetchData<T> = () => Promise<T> | never
 
-export function useAppwrite <T, I> (fn: fetchData<T>, initial: I): IResponse<T | I> {
-  const [data, setData] = useState<T | I | null>(initial)
+export function useAppwrite <T> (fn: fetchData<T>): IResponse<T> {
+  const [data, setData] = useState<T | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
+  const fetcing = async () => {
     setIsLoading(true)
-    fn()
-      .then(res => {
-        setData(res)
-      })
-      .catch(error => {
+    
+    try {
+      const res = await fn()
+      setData(res)
+    } catch (error: any) {
         setError(error)
         console.log(error)
-      })
-      .finally(() => setIsLoading(false))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const refetchData = () => {
+    fetcing()
+  }
+
+  useEffect(() => {
+    fetcing()
   }, [])
 
   const clearError = () => {
     setError(null)
   }
 
-  return {data, isLoading, error, clearError}
+  return {data, isLoading, error, clearError, refetchData}
 }
