@@ -7,7 +7,7 @@ interface IResponse<T> {
     clearError: () => void,
     refetchData: () => void
 }
-type fetchData<T> = () => Promise<T> | never
+type fetchData<T> = (p?: any) => Promise<T | null> | never 
 
 export function useAppwrite <T> (fn: fetchData<T>): IResponse<T> {
   const [data, setData] = useState<T | null>(null)

@@ -12,7 +12,6 @@ import { IPost } from '@/types/postsInterface'
 import { useAppwrite } from '../../hooks/useAppwrite'
 
 const Home: React.FC = () => {
-  const [searcValue, setSearchValue] = useState<string>('')
   const  [isRefreshing, setIsRefreshig] = useState<boolean>(true)
 
   const { data: posts, error, isLoading, refetchData } = useAppwrite<IPost[]>(fetchAllPosts)
@@ -33,12 +32,7 @@ const Home: React.FC = () => {
     await refetchData()
     await refetchLatest
     setIsRefreshig(false)
-  }
-
-  const onSearch = useCallback<(a: string) => void>((text: string): void => {
-    setSearchValue(text)
-  }, [])
-  
+  }  
 
   const renderItem: ListRenderItem<IPost> = ({ item }) => <VideoCard video={item} />;
 
@@ -61,9 +55,8 @@ const Home: React.FC = () => {
         />
       </View>
       <SearchPanel
+        initialQuery=''
         placeholder='Search a video'
-        value={searcValue}
-        handleChangeText={onSearch}
       />
 
       <View className='w-full flex-1 pt-5 pb-8'>

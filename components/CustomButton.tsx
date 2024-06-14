@@ -7,7 +7,7 @@ interface IButton {
     containerStyles?: string,
     textStyles?: string,
     isLoading: boolean,
-    enabled: boolean
+    enabled?: boolean
 }
 
 const CustomButton: React.FC<IButton> = ({title, handlePress, containerStyles, textStyles, isLoading}): React.ReactElement => {
