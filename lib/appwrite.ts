@@ -151,3 +151,28 @@ export async function createUser(email: string, password: string, username: stri
       throw new Error(error)
     }
   }
+
+  export const fetchUserPosts = async (userId: string | undefined): Promise<IPost[] | null> => {
+    if(!userId) return null
+    try {
+      const posts: IDockLists<IPost> = await databases.listDocuments(
+        databaseId,
+        videoCollectionId,
+        [Query.equal('creator', userId)]
+      ).then(res => res as IDockLists<IPost>)
+
+      return posts.documents 
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  }
+
+  export const logOut = async () => {
+    try {
+      const session = await account.deleteSession('current')
+
+      return session
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  }

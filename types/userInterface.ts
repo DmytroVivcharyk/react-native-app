@@ -1,11 +1,13 @@
-export interface IUser {
+import { Models } from "react-native-appwrite";
+
+export interface IUser extends Models.Document {
     username: string;
     email: string;
     avatar: string;
     accountId: string;
     '$id': string;
     '$tenant': string;
-    '$createdAt': Date;
+    '$createdAt': string;
     '$updatedAt': string;
     '$permissions': string[];
     '$databaseId': string;

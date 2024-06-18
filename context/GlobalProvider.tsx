@@ -1,11 +1,14 @@
 import { useContext, useState, useEffect, createContext, ReactNode, FC } from 'react';
+import { Models } from 'react-native-appwrite';
 import { getCurrentUser } from '../lib/appwrite'
 import { IUser } from '../types/userInterface'
+
+type UserType = IUser | Models.Document | null;
 
 interface IGlobalContext {
     isLoggedIn: boolean;
     setIsLoggedIn: (value: boolean) => void;
-    user: IUser | null;
+    user: UserType;
     setUser: (user: IUser | null) => void;
     isLoading: boolean;
     setIsLoading?: (value: boolean) => void;
@@ -27,7 +30,8 @@ export const useGlobalContext = (): IGlobalContext => {
 
 export const GlobalProvider: FC<IGlobalProvider>  = ({ children }: IGlobalProvider) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-    const [user, setUser] = useState<IUser | null>(null)
+    // const [user, setUser] = useState<IUser | null | Models.Document>(null)
+    const [user, setUser] = useState<Models.Document | IUser | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(  () => {

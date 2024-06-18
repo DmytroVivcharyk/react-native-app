@@ -9,10 +9,12 @@ import VideoCard from '@/components/VideoCard'
 import EmptyState from '../../components/EmptyState'
 import { fetchAllPosts, fetchLatestPosts } from '../../lib/appwrite'
 import { IPost } from '@/types/postsInterface'
+import { useGlobalContext } from '../../context/GlobalProvider'
 import { useAppwrite } from '../../hooks/useAppwrite'
 
 const Home: React.FC = () => {
   const  [isRefreshing, setIsRefreshig] = useState<boolean>(true)
+  const { user, setUser, setIsLoggedIn } = useGlobalContext()
 
   const { data: posts, error, isLoading, refetchData } = useAppwrite<IPost[]>(fetchAllPosts)
   
@@ -43,10 +45,10 @@ const Home: React.FC = () => {
         <View>
           <Text 
             className='font-pmedium text-sm text-gray-100' 
-          >Welcome Back</Text>
+          >Welcome back,</Text>
           <Text 
             className='text-2xl font-psemibold text-white'
-          >React Native App</Text>
+          >{user?.username}</Text>
         </View>
         <Image 
           source={images.logoSmall}

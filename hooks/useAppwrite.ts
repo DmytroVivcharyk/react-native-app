@@ -14,7 +14,7 @@ export function useAppwrite <T> (fn: fetchData<T>): IResponse<T> {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState(null)
 
-  const fetcing = async () => {
+  const fetching = async () => {
     setIsLoading(true)
     
     try {
@@ -29,11 +29,11 @@ export function useAppwrite <T> (fn: fetchData<T>): IResponse<T> {
   }
 
   const refetchData = () => {
-    fetcing()
+    fetching()
   }
 
   useEffect(() => {
-    fetcing()
+    fetching()
   }, [])
 
   const clearError = () => {

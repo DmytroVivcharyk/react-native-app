@@ -6,7 +6,8 @@ import { images } from '../../constants';
 import FormField from '@/components/FormField';
 import CustomButton from '../../components/CustomButton'
 
-import { signIn } from '../../lib/appwrite'
+import { signIn, getCurrentUser } from '../../lib/appwrite'
+import { useGlobalContext } from '@/context/GlobalProvider';
 
 interface IForm {
   email: string,
@@ -15,6 +16,7 @@ interface IForm {
 
 const SignIn: React.FC = (): React.ReactElement => {
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false)
+  const { setUser, setIsLoggedIn } = useGlobalContext()
   const [form, setForm] = useState<IForm>({
     email: '',
     password: '',
@@ -31,7 +33,12 @@ const SignIn: React.FC = (): React.ReactElement => {
     setIsSubmiting(true)
 
     try{
-      const result = await signIn(email, password)
+      await signIn(email, password)
+
+      const result = await getCurrentUser()
+      setUser(result)
+      setIsLoggedIn(true)
+
       setForm({
         email: '',
         password: '',
