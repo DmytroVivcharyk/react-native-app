@@ -17,7 +17,7 @@ const FormField: React.FC<IFormField> = ({title, value, handleChangeText,
   const [showPassword, setShowPassword] = useState<boolean>(false)
 
   return (
-    <View className={`space-y-5 ${otherStyles}`}>
+    <View className={`space-y-2 ${otherStyles}`}>
       <Text className='text-gray-100 text-base font-pmedium ml-3'>{title}</Text>
       <View 
         className='w-full h-16 bg-black-100 rounded-2xl border-2 flex-row items-center

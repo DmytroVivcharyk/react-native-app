@@ -15,6 +15,7 @@ import { useAppwrite } from '../../hooks/useAppwrite'
 
 import { IPost } from '@/types/postsInterface'
 
+
 interface IProfile {
 
 }
@@ -81,7 +82,7 @@ const Profile: React.FC<IProfile> = (): ReactElement => {
             titleStyles='text-xl'
           />
           <InfoBox 
-            title='1.2k'
+            title='154.8k'
             subtitle='Followers'
             titleStyles='text-xl'
           />

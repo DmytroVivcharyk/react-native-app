@@ -4,12 +4,15 @@ import {
     Client,
     Databases,
     ID,
+    ImageGravity,
     Query,
     Storage,
   } from "react-native-appwrite";
 
   import { ICurrentAccount, IUser } from "@/types/userInterface";
   import { IPost } from "@/types/postsInterface";
+  import {IPostForm, fileType} from '../app/(tabs)/create'
+import { IAsset } from "@/types/fileInterface";
 
   const appwriteConfig = {
     endpoint: 'https://cloud.appwrite.io/v1',
@@ -144,7 +147,7 @@ export async function createUser(email: string, password: string, username: stri
       const posts: IDockLists<IPost> = await databases.listDocuments(
         databaseId,
         videoCollectionId,
-        [Query.search('title', query)]
+        [Query.contains('title', query)]
       ).then(res => res as IDockLists<IPost>)
       return posts.documents 
     } catch (error: any) {
@@ -172,6 +175,80 @@ export async function createUser(email: string, password: string, username: stri
       const session = await account.deleteSession('current')
 
       return session
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  }
+
+  // ------------check ------------------------
+
+  const getFilePreviewAsync = async (fileId: string, type: fileType) => {
+    let fileUrl;
+
+    try {
+      if(type === 'video') {
+        fileUrl = storage.getFileView(storageId, fileId)
+      } else if(type === 'image') {
+        fileUrl = storage.getFilePreview(storageId, fileId, 2000, 2000, 'center' as ImageGravity, 100)
+
+        
+      } else {
+        throw new Error('invalid file type')
+      }
+
+      if(!fileUrl) throw Error('did not successed to acquire file URL')
+
+      return fileUrl
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  }
+
+  const uploadFile = async (file: IAsset | null, type: fileType) => {
+    if(!file) return
+
+    const asset = {
+      name: file.fileName,
+      type: file.mimeType,
+      size: file.fileSize,
+      uri: file.uri
+    }
+
+    try {
+      const uploadedFile = await storage.createFile(
+        storageId,
+        ID.unique(),
+        asset
+      )
+
+      const fileUrl = await getFilePreviewAsync(uploadedFile.$id, type)
+
+      return fileUrl
+
+    } catch (error: any) {
+      throw new Error(error)
+    }
+  }
+
+  export const postVideo = async (form: IPostForm) => {
+    try {
+      const [thumbnailUrl, videoUrl] = await Promise.all([
+        uploadFile(form.thumbnail, 'image'),
+        uploadFile(form.video, 'video')
+      ])
+
+      const newPost = databases.createDocument(
+        databaseId, videoCollectionId, ID.unique(), {
+          title: form.title,
+          thumbnail: thumbnailUrl,
+          video: videoUrl,
+          prompt: form.prompt,
+          creator: form.userId
+        }
+      )
+
+      return newPost
+
     } catch (error: any) {
       throw new Error(error)
     }
